@@ -1,46 +1,42 @@
-import ast
 import hashlib
 import inspect
+import textwrap
 
 import beetsplug.smartimport as smartimport
 
 
+# Exact source fingerprints for the protected matching/import core in v1.0.0.
+#
+# Do not use ast.dump() for these snapshots: Python adds/changes AST fields
+# between interpreter releases, which makes otherwise identical source code
+# hash differently across the supported Python 3.10-3.14 matrix.
+#
+# These source fingerprints are deliberately strict. If one of the protected
+# methods changes intentionally, review that diff first and only then refresh
+# the corresponding fingerprint.
 EXPECTED = {
-    "_score_album": "5791ff04d06184c0f020ab30c784a0cb0e0377384a8122cec91accf3c91d81c3",
-    "_candidate_pool": "5d595fcf4aa9c6b0f7d1bc2e76351fe580a84fd94c068c1842333ede1681c6c7",
-    "_local_match": "1e8ec05966dfa02886c23a339c21b2d1a007257ae9720fa2580718093a4cd168",
-    "_recording_matches_track": "b96f5aba358c4ae0a4c9dda8fdb9d31151fc0857a8bf08be3a6442715a4db985",
-    "_target_track_on_release": "17af2b89fd8d7c13263e7e081ec41f9a7005aa27db958e16e1b04fb3d5f71c4d",
-    "_musicbrainz_existing_match": "0865bda5ae94dff7f76a86de6cc51ecdae4a629f59157a891281b1c55c0e9f64",
-    "_duplicate_reason": "d308ea8b42e6db1692d532c781e3a3e567bb20cba33c217360ae32ecc90dc3a8",
-    "_target_track_from_existing_release": "89582e69d8c1027de6785e2c9106625a265d94edd056d58d704beef6027880d4",
-    "_apply_safe_disc_fallback": "e6a80002645dd4373b6eca8b48d4b1dd945a5c5e495b3a80e0c6520224699418",
-    "_apply_target_track": "98dce29f2db53a626bb8b71f987642f194298864082158525ca5fbe1fa7bc6ed",
-    "_group_key": "952e72f20489d97bb30344255d599b97c98c52e8ea4d7025530956c7a1446455",
-    "_group_is_coherent": "0d10e6b926e96f5d44261a77c97d6ba9920f7d864fdde2612f52824a13f18885",
-    "_prefer_album_check": "817994e301293c0eee7eb3a0fcb05a77eb993c94be75c5308dee705c69931b54",
+    "_score_album": "67bb818cc93ca8a5bda334e37f1dfa5e9fc5c861c9ad3191128a5092bc201f25",
+    "_candidate_pool": "527a7f70d8009788e6ccd4c35c274364cb7f79ebd3c5b3ea7adade43058afc5c",
+    "_local_match": "34b977c384c486db5933d958416a019e429b071075505ae0fa342adab1f1b1fd",
+    "_recording_matches_track": "1afa38cb6a8acd08da1147eab22f88313c22ccef3ff179539bff5469bb30b45a",
+    "_target_track_on_release": "02bebc44218634a7d0a95de56e7c7dd66832ff5a992757cc99b190c6e99e4dd6",
+    "_musicbrainz_existing_match": "4dbada83a1eb55fb6135bf9ec3001e7ef66c9d768acf3f3d0e4e5ff709dbe2c8",
+    "_duplicate_reason": "aeef9a4635e55f6266e0c8e2b7e0bc654d07607aaf2d59e9fda945b654943373",
+    "_target_track_from_existing_release": "9eb27ea6bdeaab8f48132d6f34aa7e4e910e82c58e07aa85611557314d8e0df4",
+    "_apply_safe_disc_fallback": "3f9fb65e53498e6ada278c289ae524ddd7d517dbf6a810c665bfeab24b824821",
+    "_apply_target_track": "0ce6daf5228c8b8bfb456d900ffe67ba218b376689a440c6a7fd4712bc105274",
+    "_group_key": "e1275868cf8e36256eb1b158bdf79fd2893a419d4b38b7d5a1e51793d45f6533",
+    "_group_is_coherent": "4554d988b310b5400dabc2b6766e66ce5946c8b2725a45a022432eafb6551156",
+    "_prefer_album_check": "854cdf91e919d3ea038376ec29c5f7217c76c3292216e8ed0602eddcadfe9742",
 }
 
 
-class NormalizeStrings(ast.NodeTransformer):
-    def visit_Constant(self, node):
-        if isinstance(node.value, str):
-            return ast.copy_location(ast.Constant(value="<STR>"), node)
-        return node
-
-
 def normalized_method_hash(name: str) -> str:
-    source = inspect.getsource(smartimport.SmartImportPlugin)
-    tree = ast.parse(source)
-    cls = next(node for node in tree.body if isinstance(node, ast.ClassDef))
-    method = next(
-        node
-        for node in cls.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name
-    )
-    method = NormalizeStrings().visit(ast.fix_missing_locations(method))
-    payload = ast.dump(method, include_attributes=False).encode()
-    return hashlib.sha256(payload).hexdigest()
+    method = getattr(smartimport.SmartImportPlugin, name)
+    source = inspect.getsource(method)
+    source = textwrap.dedent(source).replace("\r\n", "\n").replace("\r", "\n")
+    source = "\n".join(line.rstrip() for line in source.split("\n")).strip() + "\n"
+    return hashlib.sha256(source.encode("utf-8")).hexdigest()
 
 
 def test_production_core_logic_is_frozen():
