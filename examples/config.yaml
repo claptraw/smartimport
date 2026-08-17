@@ -1,0 +1,55 @@
+# Add smartimport to your existing Beets plugin list, for example:
+# plugins: fetchart embedart smartimport
+
+smartimport:
+  # Required workflow paths. Use paths visible to the environment/container
+  # where Beets is running.
+  incoming: /path/to/downloads/incoming
+  staging: /path/to/downloads/auto-match
+  manual: /path/to/downloads/manual-review
+  duplicates: /path/to/downloads/duplicates
+  failed: /path/to/downloads/failed
+
+  # Optional Beets overlay used only for the manual command printed by
+  # `beet smartcleanup`.
+  # manual_import_config: /path/to/manual-import.yaml
+
+  # Wait until a new file has remained unchanged for this many minutes.
+  min_age_minutes: 2
+
+  # Conservative matching defaults.
+  local_score_threshold: 75
+  local_score_margin: 15
+  duration_tolerance_seconds: 5
+  musicbrainz_fallback: true
+  prefer_existing_album: true
+
+  # Disabled by default. Enable only if SmartImport should replace a matching
+  # Beets database row whose referenced audio file is genuinely missing.
+  replace_missing_items: false
+
+  # Optional artwork integrations.
+  sync_artwork: true
+  sync_animated_artwork: false
+
+  extensions:
+    - flac
+    - mp3
+    - m4a
+    - mp4
+    - ogg
+    - opus
+    - wav
+    - aiff
+    - aif
+
+  # Optional provider-independent notifications through Apprise.
+  notifications:
+    enabled: false
+    # apprise_config: /path/to/apprise.conf
+    tag: ""
+    notify_on_success: false
+    notify_on_attention: true
+    notify_on_failure: true
+    notify_on_noop: false
+    notify_on_dry_run: false

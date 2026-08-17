@@ -1,0 +1,8 @@
+# One or more Apprise service URLs go here.
+# Keep the real file outside Git and never commit credentials.
+# See https://github.com/caronc/apprise for supported services and URL formats.
+#
+# Placeholder examples only:
+# discord://WEBHOOK_ID/WEBHOOK_TOKEN
+# tgram://BOT_TOKEN/CHAT_ID
+# mailto://USER:PASSWORD@MAIL_SERVER

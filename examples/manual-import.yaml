@@ -1,0 +1,9 @@
+# Optional Beets overlay for interactive manual review.
+# Use it with the normal Beets config, for example:
+# beet -vv -c /path/to/manual-import.yaml import /path/to/manual-review/release
+
+import:
+  quiet: false
+  timid: true
+  resume: false
+  incremental: false
