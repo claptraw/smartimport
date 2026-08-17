@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 
-# SmartImport itself does not assume a particular scheduler, container image,
+# smartimport itself does not assume a particular scheduler, container image,
 # or Beets copy/move setting. Set this to the same staging path configured in
 # smartimport.staging.
 : "${SMARTIMPORT_STAGING:?Set SMARTIMPORT_STAGING to the configured staging path}"

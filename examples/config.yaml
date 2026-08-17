@@ -24,7 +24,7 @@ smartimport:
   musicbrainz_fallback: true
   prefer_existing_album: true
 
-  # Disabled by default. Enable only if SmartImport should replace a matching
+  # Disabled by default. Enable only if smartimport should replace a matching
   # Beets database row whose referenced audio file is genuinely missing.
   replace_missing_items: false
 

@@ -1,6 +1,6 @@
 # Security
 
-SmartImport moves files and can modify a Beets library. Before enabling an automated loop:
+smartimport moves files and can modify a Beets library. Before enabling an automated loop:
 
 - run `beet smartimport --dry-run` on representative input;
 - keep backups of the Beets database and music library;

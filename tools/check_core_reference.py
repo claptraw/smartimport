@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare protected SmartImport core logic against a reference smartimport.py.
+"""Compare protected smartimport core logic against a reference smartimport.py.
 
 String literals are normalized so translations and user-facing wording do not
 count as algorithm changes. Any control-flow, call, operator, or numeric-constant

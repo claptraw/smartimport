@@ -479,7 +479,7 @@ class AppriseNotifier:
         except ImportError as exc:
             message = (
                 "Apprise notifications are enabled but Apprise is not installed. "
-                "Install SmartImport with the notifications extra: "
+                "Install smartimport with the notifications extra: "
                 "pip install 'beets-smartimport[notifications]'"
             )
             if strict:
@@ -656,7 +656,7 @@ class SmartImportPlugin(BeetsPlugin):
         try:
             return PUBLIC_ROUTE_NAMES[key]
         except KeyError as exc:
-            raise UserError(f"unknown SmartImport route: {key}") from exc
+            raise UserError(f"unknown smartimport route: {key}") from exc
 
     def _audio_extensions(self) -> frozenset[str]:
         try:
@@ -687,7 +687,7 @@ class SmartImportPlugin(BeetsPlugin):
         duplicates = [names for names in reverse.values() if len(names) > 1]
         if duplicates:
             joined = "; ".join(", ".join(names) for names in duplicates)
-            raise UserError(f"SmartImport paths must be distinct; duplicates: {joined}")
+            raise UserError(f"smartimport paths must be distinct; duplicates: {joined}")
         return paths
 
     def _ensure_directories(self) -> None:
@@ -1666,7 +1666,7 @@ class SmartImportPlugin(BeetsPlugin):
 
         EmbedArt normally writes via Item.try_write(), which sends the global
         ``write`` event and can therefore activate unrelated write-listener
-        plugins. SmartImport must not do that here: this helper mirrors the
+        plugins. smartimport must not do that here: this helper mirrors the
         relevant EmbedArt options but writes only the MediaFile image field.
         """
         if embedart is None:
@@ -1730,7 +1730,7 @@ class SmartImportPlugin(BeetsPlugin):
 
             # Deliberately bypass Item.write()/Item.try_write(). Those methods
             # send Beets' global write event. MediaFile changes only the
-            # embedded image field and leaves SmartImport/other plugin logic
+            # embedded image field and leaves smartimport/other plugin logic
             # completely outside this artwork-only post-step.
             media = MediaFile(syspath(album_item.path))
             media.images = [image]
@@ -1753,9 +1753,9 @@ class SmartImportPlugin(BeetsPlugin):
     ) -> str:
         """Apply only FetchArt plus isolated embedded-art synchronization.
 
-        This intentionally runs after SmartImport has already completed its
+        This intentionally runs after smartimport has already completed its
         existing add/write/move path. Artwork errors are therefore non-fatal
-        and must never change the SmartImport decision or roll back the item.
+        and must never change the smartimport decision or roll back the item.
         """
         if not self.config["sync_artwork"].get(bool):
             return ""
@@ -1799,7 +1799,7 @@ class SmartImportPlugin(BeetsPlugin):
             pass
 
         # Old/as-is library albums often have no MusicBrainz release IDs even
-        # though SmartImport has just resolved the incoming recording against
+        # though smartimport has just resolved the incoming recording against
         # one exact MusicBrainz release. Normal APPLY imports would expose that
         # release identity to FetchArt, allowing Cover Art Archive lookups.
         # Supply the already-resolved release only temporarily for the artwork
@@ -1845,7 +1845,7 @@ class SmartImportPlugin(BeetsPlugin):
         try:
             candidate = art_for_album(db_album, [db_album.path], False)
         finally:
-            # These identity hints are lookup-only. SmartImport's existing
+            # These identity hints are lookup-only. smartimport's existing
             # album identity in the Beets database must remain untouched.
             db_album.mb_albumid = original_mb_albumid
             db_album.mb_releasegroupid = original_mb_releasegroupid
@@ -1886,8 +1886,8 @@ class SmartImportPlugin(BeetsPlugin):
 
         Animated artwork is deliberately independent from cover.jpg,
         album.artpath and embedded static artwork. The helper is called only
-        after SmartImport's existing add/write/move transaction has completed.
-        Any error is cosmetic and must never change SmartImport's result.
+        after smartimport's existing add/write/move transaction has completed.
+        Any error is cosmetic and must never change smartimport's result.
         """
         if not self.config["sync_animated_artwork"].get(bool):
             return ""
@@ -1957,7 +1957,7 @@ class SmartImportPlugin(BeetsPlugin):
                 value for value in stale_ids if value not in removed_stale_ids
             ]
 
-            # Artwork is deliberately isolated from the proven SmartImport
+            # Artwork is deliberately isolated from the proven smartimport
             # transaction. A FetchArt/EmbedArt problem may be reported, but it
             # can never turn a successful attach into a failed import.
             try:
@@ -2140,11 +2140,11 @@ class SmartImportPlugin(BeetsPlugin):
 
         mode = "dry-run" if dry_run else "run"
         body = (
-            f"SmartImport {mode}: ready={ready}, attached={attached}, "
+            f"smartimport {mode}: ready={ready}, attached={attached}, "
             f"staged={staged}, manual={manual}, duplicates={duplicates}, "
             f"failed={failed}, replacements={replacements}."
         )
-        self.notifier.send("Beets SmartImport", body, kind)
+        self.notifier.send("Beets smartimport", body, kind)
 
     def smartnotifytest(self, lib: Any, opts: Any, args: list[str]) -> None:
         if not self.notifier.enabled():
@@ -2152,13 +2152,13 @@ class SmartImportPlugin(BeetsPlugin):
                 "Apprise notifications are disabled in smartimport.notifications.enabled"
             )
         if not self.notifier.send(
-            "Beets SmartImport test",
-            "Your SmartImport notifications are working.",
+            "Beets smartimport test",
+            "Your smartimport notifications are working.",
             "success",
             strict=True,
         ):
-            raise UserError("Apprise did not confirm the SmartImport test notification")
-        print("SmartImport Apprise test notification sent successfully.")
+            raise UserError("Apprise did not confirm the smartimport test notification")
+        print("smartimport Apprise test notification sent successfully.")
 
     def smartimport(self, lib: Any, opts: Any, args: list[str]) -> None:
         self._ensure_directories()
@@ -2182,7 +2182,7 @@ class SmartImportPlugin(BeetsPlugin):
         }
         self._current_index = LibraryIndex(lib)
         print(
-            f"SmartImport: {len(files)} file(s), "
+            f"smartimport: {len(files)} file(s), "
             f"{len(self._current_index.albums)} existing Beets album(s)."
         )
 
@@ -2408,7 +2408,7 @@ class SmartImportPlugin(BeetsPlugin):
         if moved and self._notifications_enabled_for_run(bool(opts.dry_run)):
             if self.config["notifications"]["notify_on_attention"].get(bool):
                 self.notifier.send(
-                    "Beets SmartImport: manual review required",
+                    "Beets smartimport: manual review required",
                     f"SmartCleanup moved {moved} file(s) to manual review.",
                     "warning",
                 )
