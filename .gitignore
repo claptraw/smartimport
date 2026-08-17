@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+.venv/
+venv/
+.env
+*.db
+*.sqlite*
+*.log
+*.token*
+*token*.json
+apprise.conf
