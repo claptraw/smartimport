@@ -1,31 +1,31 @@
 # 🎵 smartimport
 
-smartimport is a [beets](https://beets.io/) plugin for safely processing new music without forcing every incoming file through the same import path.
+smartimport is a [beets](https://beets.io/) plugin, that aims on making the import process with beets as smooth and automatic as possible.
 
-It first checks whether a new track belongs to an album that already exists in your Beets library. If the match is safe, smartimport attaches the track directly to that existing album. If it cannot confirm an existing album, the files are staged for the normal Beets importer. Ambiguous or incomplete files are kept separate for manual review instead of being force-matched.
+It first checks whether a new track belongs to an album that already exists in your beets library. If the match is safe, smartimport attaches the track directly to that existing album - no more duplicate albums in Navidrome because beets chooses the Europe-release for one song and the US-release for another song of the same album. 
+If smartimport can't confirm an existing album, the files are staged for the normal beets importer. Ambiguous or incomplete files are kept separate for manual review instead of being force-matched.
 
-The goal is simple: **make routine music intake more automatic while keeping Beets in control of uncertain releases.**
+The goal is simple: **make routine music intake more automatic while keeping beets in control of uncertain releases.**
 
 ## Features
 
-- Automatically checks new audio files against albums already present in your Beets library.
-- Safely attaches confident matches to the correct existing album.
-- Keeps album identity consistent so newly added tracks do not unnecessarily split an album in Beets/Navidrome-style libraries.
+- Automatically checks if a new song fits into an already existing album in your library.
+- If it does, the new song gets attached to that album automatically - no more split albums in Navidrome.
 - Resolves track and disc positions from the exact MusicBrainz release when possible.
-- Handles multi-disc releases and global track numbering conservatively.
+- Handles multi-disc releases and global track numbering.
 - Detects real duplicates before attaching a new file.
-- Can optionally replace a matching Beets database entry whose audio file is genuinely missing.
-- Sends unknown releases to a staging folder for the **normal Beets importer** instead of inventing a match.
+- Can optionally replace a matching beets database entry whose audio file is genuinely missing.
+- Sends unknown releases to a staging folder for the **normal beets importer** to take over instead of inventing a match.
 - Sends ambiguous, incomplete, or unsafe files to dedicated manual-review folders.
-- Dry-run mode lets you preview decisions before files or the Beets database are changed.
-- Optional static artwork synchronization with Beets `fetchart` / `embedart`.
-- Optional native integration with [fetchanimated](https://github.com/claptraw/fetchanimated) for Apple Music animated album artwork.
+- Dry-run mode lets you preview decisions before files or the beets database are changed.
+- Optional static artwork synchronization with beets `fetchart` / `embedart`.
+- Optional native integration with [fetchanimated](https://github.com/claptraw/fetchanimated) for aquiring Apple Music animated album covers.
 - Optional provider-independent notifications through [Apprise](https://github.com/caronc/apprise).
 - Notification and artwork failures are isolated from the import itself and cannot turn a successful attach into a failed import.
 
-## How smartimport fits into Beets
+## How smartimport fits into beets
 
-smartimport does **not** replace the normal Beets importer.
+smartimport does **not** replace the normal beets importer.
 
 ```text
 New audio files
@@ -51,27 +51,27 @@ This is especially useful for automated download folders where some files are ad
 
 ## Requirements
 
-- A working Beets installation with an up-to-date Beets library database.
+- A working beets installation with an up-to-date beets library database.
 - Python 3.10 through 3.14.
-- Beets 2.13.1 or newer within the Beets 2.x series.
+- beets 2.13.1 or newer within the beets 2.x series.
 - `musicbrainzngs` for smartimport's MusicBrainz fallback and exact release/track lookups.
 - Optional: Apprise for notifications.
-- Optional: Beets `fetchart` / `embedart` for static artwork synchronization.
-- Optional: [fetchanimated](https://github.com/claptraw/fetchanimated) for Apple Music animated album artwork.
+- Optional: beets `fetchart` / `embedart` for static album cover synchronization.
+- Optional: [fetchanimated](https://github.com/claptraw/fetchanimated) for Apple Music animated album covers.
 
-smartimport reads the albums already known to your Beets database. It does not scan your entire music directory to discover existing albums on its own.
+smartimport reads the albums already known to your beets database. It does not scan your entire music directory to discover existing albums on its own.
 
 ## Installation
 
-There are two supported installation methods. **You do not have to use `pip install` for the smartimport plugin itself** if you prefer the classic Beets `pluginpath` method.
+There are two supported installation methods. **You do not have to use `pip install` for the smartimport plugin itself** if you prefer the classic beets `pluginpath` method.
 
-### Option 1: Copy `smartimport.py` into your Beets plugin folder
+### Option 1: Copy `smartimport.py` into your beets plugin folder
 
-This is the simplest choice if you already manage custom Beets plugins as individual `.py` files. Download `smartimport.py` from the GitHub Release or copy `beetsplug/smartimport.py` from this repository.
+This is the simplest choice if you already manage custom beets plugins as individual `.py` files. Download `smartimport.py` from the GitHub Release or copy `beetsplug/smartimport.py` from this repository.
 
 #### 1. Install the required Python dependency
 
-smartimport uses the Python package `musicbrainzngs`. Install it into the **same Python environment where Beets runs**:
+smartimport uses the Python package `musicbrainzngs` to reliably identify album identities. Install it into the **same environment where beets runs**, e.g. your beets Docker container:
 
 ```bash
 python -m pip install musicbrainzngs
@@ -83,11 +83,11 @@ If you also want Apprise notifications:
 python -m pip install apprise
 ```
 
-`musicbrainzngs` is a Python dependency, not another Beets plugin. It is not embedded inside the standalone `smartimport.py` file, and you do not add it to the Beets `plugins:` line.
+`musicbrainzngs` is a Python dependency, not another beets plugin. It is not embedded inside the standalone `smartimport.py` file, and you do not add it to the beets `plugins:` line.
 
 #### 2. Copy the plugin file
 
-Create a `beetsplug` folder next to your Beets configuration if you do not already have one:
+Create a `beetsplug` folder next to your beets configuration if you do not already have one:
 
 ```text
 beets-config/
@@ -98,7 +98,7 @@ beets-config/
 
 Copy `beetsplug/smartimport.py` from this repository into that folder.
 
-Then point Beets to the directory containing your custom plugin:
+Then open your beets `config.yaml` and point the `pluginpath` to the location of that `beetsplug` folder:
 
 ```yaml
 pluginpath:
@@ -107,7 +107,7 @@ pluginpath:
 
 If you already use `pluginpath`, add the directory to the existing list instead of replacing it.
 
-Add `smartimport` to your existing plugin list:
+Add `smartimport` to your existing plugin list in your `config.yaml`:
 
 ```yaml
 plugins: fetchart embedart smartimport
@@ -117,13 +117,15 @@ Do not remove your existing plugins; just add `smartimport`.
 
 #### 3. Add the smartimport configuration
 
-Copy the `smartimport:` section from [`examples/config.yaml`](examples/config.yaml) into your Beets `config.yaml` and replace the example paths with your own paths.
+Copy the `smartimport:` section from [`examples/config.yaml`](examples/config.yaml) into your beets `config.yaml` and replace the example paths with your own paths.
+
+Then, restart beets and you're ready to go. You may want to check if smartimport is running with the command `beet version` in your beets installation.
 
 ### Option 2: Install the packaged release
 
 Use this method if you want Python to manage smartimport and its required Python dependencies for you.
 
-Download the release wheel and install it into the same Python environment as Beets:
+Download the release wheel and install it into the same Python environment as beets:
 
 ```bash
 python -m pip install /path/to/beets_smartimport-1.0.0-py3-none-any.whl
@@ -137,7 +139,7 @@ To install smartimport together with optional Apprise support:
 python -m pip install "/path/to/beets_smartimport-1.0.0-py3-none-any.whl[notifications]"
 ```
 
-When smartimport is installed as a Python package, no `pluginpath` entry is required. You still need to enable it in Beets:
+When smartimport is installed as a Python package, no `pluginpath` entry is required. You still need to enable it in beets:
 
 ```yaml
 plugins: fetchart embedart smartimport
@@ -157,15 +159,15 @@ python -m pip install '.[notifications]'
 
 ## Docker installation
 
-If Beets runs inside Docker, the important rule is:
+If beets runs inside Docker, the important rule is:
 
-> smartimport and its Python dependencies must exist **inside the Beets container**, not only on the Docker host.
+> smartimport and its Python dependencies must exist **inside the beets container**, not only on the Docker host.
 
-Your Beets `config.yaml`, smartimport paths, and `pluginpath` also need to use paths that are valid **inside the container**.
+Your beets `config.yaml`, smartimport paths, and `pluginpath` also need to use paths that are valid **inside the container**.
 
 ### Docker: manual plugin-file method
 
-If your Beets configuration is mounted into the container, you can keep `smartimport.py` in that persistent config volume, for example:
+If your beets configuration is mounted into the container, you can keep `smartimport.py` in that persistent config volume, for example:
 
 ```text
 /config/
@@ -201,7 +203,7 @@ A one-time `docker exec ... pip install ...` can be useful for testing, but the 
 
 ### Docker: packaged release method
 
-You can also bake the smartimport wheel directly into your Beets image. This automatically installs `musicbrainzngs` as a dependency:
+You can also bake the smartimport wheel directly into your beets image. This automatically installs `musicbrainzngs` as a dependency:
 
 ```dockerfile
 FROM your-existing-beets-image
@@ -227,7 +229,7 @@ An example Dockerfile is included under [`examples/docker/`](examples/docker/).
 
 ## Verify the installation
 
-If Beets runs as a long-lived container or service, restart that container/service after changing the plugin installation or configuration.
+If beets runs as a long-lived container or service, restart that container/service after changing the plugin installation or configuration.
 
 Then run:
 
@@ -245,10 +247,10 @@ beet smartimport --dry-run
 
 ## Configuration
 
-All five workflow paths are required and must point to different absolute paths.
+All five workflow paths are required and must point to different absolute paths. 
 
 ```yaml
-# Add smartimport to your existing Beets plugin list, for example:
+# Add smartimport to your existing beets plugin list, for example:
 plugins: fetchart embedart smartimport
 
 smartimport:
@@ -259,6 +261,7 @@ smartimport:
   failed: /path/to/downloads/failed
 
   # Incoming files must remain unchanged for this long before processing.
+  # Prevents that files are being processed, that haven't been downloaded completely.
   min_age_minutes: 2
 
   # Conservative matching defaults.
@@ -269,7 +272,7 @@ smartimport:
   prefer_existing_album: true
 
   # Disabled by default. When enabled, smartimport may replace a matching
-  # Beets database item only when its referenced audio file is actually missing.
+  # beets database item only when its referenced audio file is actually missing.
   replace_missing_items: false
 
   # Optional artwork integrations.
@@ -302,13 +305,13 @@ The complete configuration with comments is available in [`examples/config.yaml`
 
 ### Workflow folders
 
-- `incoming` - new audio files waiting for smartimport.
-- `staging` - coherent releases that should be handled by the normal Beets importer.
-- `manual` - files that need human review.
+- `incoming` - your normal downloads folder; new audio files waiting for smartimport.
+- `staging` - coherent releases that should be handled by the normal beets importer.
+- `manual` - files that need your manual review.
 - `duplicates` - confirmed duplicates.
 - `failed` - technical failures such as unreadable files or failed direct attachment.
 
-smartimport creates English reason subfolders when needed, such as `ambiguous-match`, `missing-required-tags`, `attach-error`, or `beets-match-uncertain`.
+smartimport creates subfolders in those workflow folders so you know why a file landed there, such as `ambiguous-match`, `missing-required-tags`, `attach-error`, or `beets-match-uncertain`.
 
 ## Everyday workflow
 
@@ -322,7 +325,7 @@ smartimport waits until a file has been unchanged for at least `min_age_minutes`
 beet smartimport --dry-run
 ```
 
-No files or Beets database entries are changed.
+No files or beets database entries are changed.
 
 ### 3. Process the files
 
@@ -332,19 +335,19 @@ beet smartimport
 
 Safe existing-album matches are attached directly. Unknown coherent releases are moved to `staging`. Unsafe cases are routed to review folders.
 
-### 4. Import staged releases with normal Beets
+### 4. Import staged releases with normal beets
 
-smartimport deliberately leaves new releases to the normal Beets autotagger.
+smartimport deliberately leaves new releases to the normal beets autotagger.
 
-Use Beets' move mode so successfully imported files are consumed from staging:
+Use beets' move mode so successfully imported files are consumed from staging:
 
 ```bash
 beet import -m /path/to/staging/release-folder
 ```
 
-This works independently of your normal global Beets `copy` / `move` settings.
+This works independently of your normal global beets `copy` / `move` settings.
 
-### 5. Clean up anything Beets did not consume
+### 5. Clean up anything beets did not consume
 
 ```bash
 beet smartcleanup
@@ -362,12 +365,12 @@ A small POSIX automation example is included in [`examples/automation.sh`](examp
 | `beet smartimport` | Process eligible files from `incoming`. |
 | `beet smartimport --no-musicbrainz` | Run once without the MusicBrainz fallback. |
 | `beet smartcleanup --dry-run` | Preview which staged files would be sent to manual review. |
-| `beet smartcleanup` | Move staged files left behind by Beets to manual review. |
+| `beet smartcleanup` | Move staged files left behind by beets to manual review. |
 | `beet smartrepair` | Audit safe album-identity inconsistencies without writing changes. |
 | `beet smartrepair --apply` | Apply safe MusicBrainz album/release-group repairs. |
 | `beet smartnotifytest` | Send a test notification through Apprise. |
 
-For additional Beets output while testing:
+For additional beets output while testing:
 
 ```bash
 beet -vv smartimport --dry-run
@@ -382,9 +385,9 @@ What you need to do depends on how smartimport is installed:
 | smartimport installation | What you need to do |
 |---|---|
 | Release wheel / `python -m pip install .` | Nothing extra. `musicbrainzngs` is installed automatically as a declared dependency. |
-| Manual `smartimport.py` + `pluginpath` | Run `python -m pip install musicbrainzngs` in the same Python environment/container as Beets. |
+| Manual `smartimport.py` + `pluginpath` | Run `python -m pip install musicbrainzngs` in the same Python environment/container as beets. |
 
-You do **not** add `musicbrainzngs` to the Beets `plugins:` list.
+You do **not** add `musicbrainzngs` to the beets `plugins:` list.
 
 ## Apprise notifications
 
@@ -430,7 +433,7 @@ smartimport:
     notify_on_dry_run: false
 ```
 
-If Beets runs in Docker, `apprise_config` must be the path to the file **inside the container**.
+If beets runs in Docker, `apprise_config` must be the path to the file **inside the container**.
 
 By default smartimport notifies only when attention is useful: manual-review/duplicate results or failures. You can enable successful-run, no-op, or dry-run notifications separately.
 
@@ -454,11 +457,11 @@ With:
 sync_artwork: true
 ```
 
-smartimport can run its existing-album artwork post-step when Beets `fetchart` / `embedart` are available. Artwork problems are treated as cosmetic and do not roll back a successful track attachment.
+smartimport can run its existing-album artwork post-step when beets `fetchart` / `embedart` are available. Artwork problems are treated as cosmetic and do not roll back a successful track attachment.
 
 ### Apple Music animated album artwork with fetchanimated
 
-[fetchanimated](https://github.com/claptraw/fetchanimated) is a separate Beets plugin for downloading Apple Music animated album artwork.
+[fetchanimated](https://github.com/claptraw/fetchanimated) is a separate beets plugin for downloading Apple Music animated album covers.
 
 If both plugins are installed and loaded, smartimport can call fetchanimated natively after attaching a track to an existing album:
 
@@ -471,7 +474,7 @@ smartimport:
 
 If fetchanimated is not installed, leave the option disabled. A missing or failed animated-artwork post-step never causes the smartimport attachment itself to fail.
 
-## Replacing missing Beets items
+## Replacing missing beets items
 
 The safe public default is:
 
@@ -479,7 +482,7 @@ The safe public default is:
 replace_missing_items: false
 ```
 
-With this setting, a matching Beets database entry whose audio file is missing is sent to manual review.
+With this setting, a matching beets database entry whose audio file is missing is sent to manual review.
 
 If you deliberately enable:
 
@@ -497,7 +500,7 @@ smartimport does **not** clear or overwrite incoming `comments`, `genres`, or `s
 
 ## What smartimport does not do
 
-- It does not replace Beets' normal autotagger for new releases.
+- It does not replace beets' normal autotagger for new releases.
 - It does not force ambiguous matches.
 - It does not require a specific downloader, music server, NAS, Docker image, folder layout, or notification provider.
 - It does not require FetchAnimated or Apprise for the normal import workflow.
@@ -508,13 +511,13 @@ smartimport does **not** clear or overwrite incoming `comments`, `genres`, or `s
 
 | Problem | What to check |
 |---|---|
-| `smartimport` does not appear in `beet version` | Check the `plugins:` line. For manual installs, also check `pluginpath`. For package installs, verify it was installed into the same Python environment as Beets. |
-| `musicbrainzngs is not installed` | Manual plugin installs need `python -m pip install musicbrainzngs` in the Beets environment/container. Package/wheel installs pull it automatically. |
-| smartimport cannot see files | Use paths that exist inside the environment/container where Beets runs and verify filesystem permissions. |
+| `smartimport` does not appear in `beet version` | Check the `plugins:` line. For manual installs, also check `pluginpath`. For package installs, verify it was installed into the same Python environment as beets. |
+| `musicbrainzngs is not installed` | Manual plugin installs need `python -m pip install musicbrainzngs` in the beets environment/container. Package/wheel installs pull it automatically. |
+| smartimport cannot see files | Use paths that exist inside the environment/container where beets runs and verify filesystem permissions. |
 | Files never become ready | Check `min_age_minutes` and whether another application is still modifying the files. |
 | A track goes to `ambiguous-match` | smartimport found no sufficiently safe unique existing-album match. Review it manually rather than lowering thresholds blindly. |
-| A release remains in staging after `beet import` | Use `beet import -m ...` so Beets consumes the staged files, then run `beet smartcleanup`. |
-| Apprise test fails | Verify Apprise is installed, the config path is correct inside the Beets environment, and the service URL works. |
+| A release remains in staging after `beet import` | Use `beet import -m ...` so beets consumes the staged files, then run `beet smartcleanup`. |
+| Apprise test fails | Verify Apprise is installed, the config path is correct inside the beets environment, and the service URL works. |
 | Artwork fails but the track imported | This is expected safety behavior; artwork post-steps are non-fatal. |
 
 ## Development
@@ -539,6 +542,6 @@ The source code in this repository is released under the MIT License. See [`LICE
 
 ## Legal disclaimer
 
-smartimport is an independent, unofficial project and is not affiliated with or endorsed by Beets, MusicBrainz, Apprise, Apple, or Apple Music.
+smartimport is an independent, unofficial project and is not affiliated with or endorsed by beets, MusicBrainz, Apprise, Apple, or Apple Music.
 
 Users are responsible for their own music files, metadata, service usage, backups, and compliance with applicable terms and laws.
