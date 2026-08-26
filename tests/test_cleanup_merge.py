@@ -1,17 +1,39 @@
 from types import SimpleNamespace
 
+import pytest
+
 from beetsplug.smartimport import PUBLIC_ROUTE_NAMES, SmartImportPlugin
 
 
+PATH_KEYS = ("incoming", "staging", "manual", "duplicates", "failed")
+
+
+@pytest.fixture
 def configured_plugin(tmp_path):
+    """Configure temporary paths without leaking Beets' global plugin config.
+
+    Beets plugin configuration is shared through the global config tree. These
+    regression tests therefore restore the previous path values after each test
+    so later tests can still verify that the public defaults are intentionally
+    empty/required.
+    """
     plugin = SmartImportPlugin()
-    for key in ("incoming", "staging", "manual", "duplicates", "failed"):
+    previous = {key: plugin.config[key].as_str() for key in PATH_KEYS}
+
+    for key in PATH_KEYS:
         plugin.config[key].set(str(tmp_path / key))
-    return plugin
+
+    try:
+        yield plugin
+    finally:
+        for key, value in previous.items():
+            plugin.config[key].set(value)
 
 
-def test_smartcleanup_merges_same_pending_release_without_timestamp_folder(tmp_path):
-    plugin = configured_plugin(tmp_path)
+def test_smartcleanup_merges_same_pending_release_without_timestamp_folder(
+    tmp_path, configured_plugin
+):
+    plugin = configured_plugin
     staging = tmp_path / "staging"
     manual = tmp_path / "manual"
     group_name = "96d4c283 - Future - The Real Me"
@@ -32,8 +54,10 @@ def test_smartcleanup_merges_same_pending_release_without_timestamp_folder(tmp_p
     assert sorted(path.name for path in target.parent.iterdir()) == [group_name]
 
 
-def test_smartcleanup_preserves_both_files_on_filename_collision(tmp_path):
-    plugin = configured_plugin(tmp_path)
+def test_smartcleanup_preserves_both_files_on_filename_collision(
+    tmp_path, configured_plugin
+):
+    plugin = configured_plugin
     staging = tmp_path / "staging"
     manual = tmp_path / "manual"
     group_name = "613c8999 - Future - High Off Life"
