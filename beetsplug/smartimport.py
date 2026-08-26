@@ -20,7 +20,7 @@ from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand, UserError
 
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 REPOSITORY_URL = "https://github.com/claptraw/smartimport"
 
 DEFAULT_AUDIO_EXTENSIONS = (
@@ -2378,19 +2378,28 @@ class SmartImportPlugin(BeetsPlugin):
                 continue
 
             target = self._path("manual") / self._route_name("cleanup_manual") / group.name
+            merge_into_existing = target.is_dir()
             if not opts.dry_run:
                 target.parent.mkdir(parents=True, exist_ok=True)
-                if target.exists():
-                    target = target.with_name(
-                        f"{target.name}-{int(time.time())}"
-                    )
 
+            action = "merge into" if merge_into_existing else "move to"
             print(
                 f"MANUAL: {len(audio)} file(s) remained after the Beets import: "
-                f"{group} -> {target}"
+                f"{group} -> {action} {target}"
             )
             if not opts.dry_run:
-                shutil.move(str(group), str(target))
+                if merge_into_existing:
+                    # Staging folder names are deterministic for one release
+                    # group. An exact-name target is therefore an earlier batch
+                    # of the same still-pending release, not a generic path
+                    # collision. Merge only files and let _move_file preserve
+                    # both copies if two filenames happen to collide.
+                    for source in sorted(path for path in group.rglob("*") if path.is_file()):
+                        relative_parent = source.parent.relative_to(group)
+                        self._move_file(source, target / relative_parent)
+                    shutil.rmtree(group, ignore_errors=True)
+                else:
+                    shutil.move(str(group), str(target))
 
             manual_config = self.config["manual_import_config"].as_str().strip()
             if manual_config:

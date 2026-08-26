@@ -128,7 +128,7 @@ Use this method if you want Python to manage smartimport and its required Python
 Download the release wheel and install it into the same Python environment as beets:
 
 ```bash
-python -m pip install /path/to/beets_smartimport-1.0.0-py3-none-any.whl
+python -m pip install /path/to/beets_smartimport-1.1.0-py3-none-any.whl
 ```
 
 This automatically installs the required `musicbrainzngs` dependency. **You do not need to install `musicbrainzngs` separately when using the wheel/package installation.**
@@ -136,7 +136,7 @@ This automatically installs the required `musicbrainzngs` dependency. **You do n
 To install smartimport together with optional Apprise support:
 
 ```bash
-python -m pip install "/path/to/beets_smartimport-1.0.0-py3-none-any.whl[notifications]"
+python -m pip install "/path/to/beets_smartimport-1.1.0-py3-none-any.whl[notifications]"
 ```
 
 When smartimport is installed as a Python package, no `pluginpath` entry is required. You still need to enable it in beets:
@@ -208,10 +208,10 @@ You can also bake the smartimport wheel directly into your beets image. This aut
 ```dockerfile
 FROM your-existing-beets-image
 
-COPY beets_smartimport-1.0.0-py3-none-any.whl /tmp/
+COPY beets_smartimport-1.1.0-py3-none-any.whl /tmp/
 RUN python -m pip install --no-cache-dir \
-    /tmp/beets_smartimport-1.0.0-py3-none-any.whl \
-    && rm /tmp/beets_smartimport-1.0.0-py3-none-any.whl
+    /tmp/beets_smartimport-1.1.0-py3-none-any.whl \
+    && rm /tmp/beets_smartimport-1.1.0-py3-none-any.whl
 ```
 
 With Apprise support:
@@ -219,10 +219,10 @@ With Apprise support:
 ```dockerfile
 FROM your-existing-beets-image
 
-COPY beets_smartimport-1.0.0-py3-none-any.whl /tmp/
+COPY beets_smartimport-1.1.0-py3-none-any.whl /tmp/
 RUN python -m pip install --no-cache-dir \
-    "/tmp/beets_smartimport-1.0.0-py3-none-any.whl[notifications]" \
-    && rm /tmp/beets_smartimport-1.0.0-py3-none-any.whl
+    "/tmp/beets_smartimport-1.1.0-py3-none-any.whl[notifications]" \
+    && rm /tmp/beets_smartimport-1.1.0-py3-none-any.whl
 ```
 
 An example Dockerfile is included under [`examples/docker/`](examples/docker/).
@@ -353,7 +353,7 @@ This works independently of your normal global beets `copy` / `move` settings.
 beet smartcleanup
 ```
 
-Files still remaining in staging are moved into the manual-review area instead of silently staying behind.
+Files still remaining in staging are moved into the manual-review area instead of silently staying behind. If a later SmartImport run produces the exact same deterministic release folder while that release is still waiting for manual review, `smartcleanup` merges the new files into the existing release folder instead of creating a timestamp-suffixed sibling folder. Matching decisions are not re-run or changed by this merge.
 
 A small POSIX automation example is included in [`examples/automation.sh`](examples/automation.sh).
 

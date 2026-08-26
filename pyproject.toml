@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "beets-smartimport"
-version = "1.0.0"
+version = "1.1.0"
 description = "Conservative Beets plugin for attaching new tracks to existing albums and staging unknown releases."
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
